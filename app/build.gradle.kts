@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
     id("com.google.devtools.ksp") version "1.9.22-1.0.17"
-    id("com.google.dagger.hilt.android") version "2.44" apply false
+    id("com.google.dagger.hilt.android")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -43,7 +44,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
@@ -70,6 +71,11 @@ dependencies {
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

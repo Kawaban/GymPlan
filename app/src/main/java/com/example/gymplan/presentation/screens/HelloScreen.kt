@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gymplan.presentation.ExerciseViewModel
-import com.example.gymplan.presentation.destinations.InformationScreenDestination
+import com.example.gymplan.presentation.screens.destinations.InformationScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -131,9 +131,4 @@ fun ExtendedButton(text: String, image: ImageVector, buttonColor: Color = Color.
 
 
 
-/*
-@Preview(showBackground = true)
-@Composable
-fun PreviewHelloScreen() {
-    HelloScreen()
-}*/
+

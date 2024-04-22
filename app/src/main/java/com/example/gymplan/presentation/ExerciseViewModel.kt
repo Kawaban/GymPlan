@@ -5,14 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gymplan.data.ExerciseRepository
+import com.example.gymplan.data.ExerciseRepositoryImpl
 import com.example.gymplan.data.util.Resource
+import com.example.gymplan.domain.ExerciseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ExerciseViewModel @Inject constructor(val exerciseRepository: ExerciseRepository) : ViewModel() {
+class ExerciseViewModel @Inject constructor( private val exerciseRepository: ExerciseRepository) : ViewModel() {
 
     var state by mutableStateOf(ExerciseState())
         private set

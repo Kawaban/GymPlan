@@ -14,7 +14,7 @@ class ExerciseDBApi @Inject constructor(){
         val client = OkHttpClient()
 
         val request = Request.Builder()
-            .url("https://exercisedb.p.rapidapi.com/exercises/bodyPart/" + type + "?limit=" + number)
+            .url("https://exercisedb.p.rapidapi.com/exercises/bodyPart/$type?limit=$number")
             .get()
             .addHeader("X-RapidAPI-Key", "1120050b5emshec695034c8d3f0cp15fd46jsn60f4b164ea9c")
             .addHeader("X-RapidAPI-Host", "exercisedb.p.rapidapi.com")

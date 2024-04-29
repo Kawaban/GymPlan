@@ -1,16 +1,15 @@
-package com.example.gymplan.presentation.screens
+package com.example.gymplan.presentation.exercisepickerscreen
 
+import Spinner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +22,7 @@ import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
@@ -38,46 +38,77 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.example.gymplan.data.dto.Exercise
 import com.example.gymplan.data.dto.ExerciseResult
-import com.example.gymplan.presentation.PlanViewModel
+import com.example.gymplan.data.dto.PlanList
+import com.example.gymplan.presentation.destinations.CreatePlanScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 
 @Destination
 @Composable
-fun InformationScreen(exercises: ExerciseResult, navigator: DestinationsNavigator, viewModel: PlanViewModel = hiltViewModel())
+fun InformationScreen(exercises: ExerciseResult, plans: PlanList, navigator: DestinationsNavigator, viewModel: AddToPlanViewModel = hiltViewModel())
 {
+
     val mutableList = remember {
         mutableStateListOf(
             *exercises.listOfExercise.toTypedArray()
         )
-
     }
 
-    LazyColumn() {
-        item{
-            Text(text ="Exercises", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), fontSize = 24.sp)
+    var listNames = remember {
+        mutableStateListOf(
+            *plans.list.map { it.name }.toTypedArray()
+        )
+    }
+    if (listNames.size == 0)
+        listNames+= "No plans available"
+
+    listNames+= "Create new plan"
+
+
+    Scaffold(
+        topBar = {
+            Spinner(listNames = listNames){
+                if(it == "Create new plan")
+                {
+                    navigator.navigate(CreatePlanScreenDestination())
+                }
+                else if(it != "No plans available")
+                {
+                    viewModel.selectPlan(listNames.indexOf(it), plans)
+                }
+                else
+                {
+                    viewModel.selectPlan()
+                }
+
+            }
         }
-        items(mutableList) { exercise ->
-            SwipeToDeleteContainer(item = exercise, onDelete = { viewModel.addExercise(it); mutableList-=it}) {
-                ExerciseCard(exercise)
-                Spacer(modifier = Modifier.padding(16.dp))
+    ) { innerPadding ->
+        LazyColumn(modifier = Modifier.padding(innerPadding)) {
+            items(mutableList) { exercise ->
+                SwipeToDeleteContainer(item = exercise, onDelete = { if(viewModel.state.plan!=null) {viewModel.addExercise(it); mutableList-=it}}) {
+                    ExerciseCard(exercise)
+                    Spacer(modifier = Modifier.padding(16.dp))
+                }
             }
         }
     }
+
+
+
+
+
 }
 
 @Composable

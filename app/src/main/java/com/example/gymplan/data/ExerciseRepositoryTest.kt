@@ -5,7 +5,6 @@ import com.example.gymplan.data.dto.ExerciseResult
 import com.example.gymplan.data.util.Resource
 import com.example.gymplan.domain.ExerciseRepository
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class ExerciseRepositoryTest @Inject constructor() : ExerciseRepository {
     override suspend fun getExercises(type: String, number: Int): Resource<ExerciseResult> {

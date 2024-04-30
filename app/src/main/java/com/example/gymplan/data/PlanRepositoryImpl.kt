@@ -43,4 +43,7 @@ class PlanRepositoryImpl @Inject constructor(val planDao: PlanDao, val exerciseD
     override suspend fun updateExercise(exercise: Exercise, planId: Int) {
         exerciseDAO.updateExercise(converter.convert(exercise, planId))
     }
+    override suspend fun deleteAllPlans() {
+        planDao.deleteAllPlans()
+    }
 }

@@ -6,8 +6,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -52,64 +56,93 @@ import com.example.gymplan.data.dto.PlanList
 import com.example.gymplan.presentation.destinations.CreatePlanScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 
 @Destination
 @Composable
-fun InformationScreen(exercises: ExerciseResult, plans: PlanList, navigator: DestinationsNavigator, viewModel: AddToPlanViewModel = hiltViewModel())
+fun InformationScreen(exercises: ExerciseResult, navigator: DestinationsNavigator, viewModel: AddToPlanViewModel = hiltViewModel())
 {
+    viewModel.getAllPlans()
 
-    val mutableList = remember {
-        mutableStateListOf(
-            *exercises.listOfExercise.toTypedArray()
-        )
-    }
-
-    var listNames = remember {
-        mutableStateListOf(
-            *plans.list.map { it.name }.toTypedArray()
-        )
-    }
-    if (listNames.size == 0)
-        listNames+= "No plans available"
-
-    listNames+= "Create new plan"
-
-
-    Scaffold(
-        topBar = {
-            Spinner(listNames = listNames){
-                if(it == "Create new plan")
-                {
-                    navigator.navigate(CreatePlanScreenDestination())
-                }
-                else if(it != "No plans available")
-                {
-                    viewModel.selectPlan(listNames.indexOf(it), plans)
-                }
-                else
-                {
-                    viewModel.selectPlan()
-                }
-
-            }
+    if (viewModel.statePlan.isLoading) {
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.padding(16.dp))
+            Text("Loading...")
         }
-    ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(mutableList) { exercise ->
-                SwipeToDeleteContainer(item = exercise, onDelete = { if(viewModel.state.plan!=null) {viewModel.addExercise(it); mutableList-=it}}) {
-                    ExerciseCard(exercise)
-                    Spacer(modifier = Modifier.padding(16.dp))
+        return
+
+    }
+    else {
+
+
+        val mutableList = remember {
+            mutableStateListOf(
+                *exercises.listOfExercise.toTypedArray()
+            )
+        }
+
+        var listNames = remember {
+            mutableStateListOf(
+                *viewModel.statePlan.obj?.data?.list?.map { it.name }!!.toTypedArray()
+            )
+        }
+        if (listNames.size == 0)
+            listNames += "No plans available"
+        else
+            viewModel.selectPlan(0)
+
+        listNames += "Create new plan"
+
+
+
+
+        Scaffold(
+            topBar = {
+                Spinner(listNames = listNames) {
+                    if (it == "Create new plan") {
+                        navigator.navigate(CreatePlanScreenDestination())
+                    } else if (it != "No plans available") {
+                        viewModel.selectPlan(listNames.indexOf(it))
+                    } else {
+                        viewModel.selectPlan()
+                    }
+
                 }
             }
+        ) { innerPadding ->
+            LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                items(mutableList) { exercise ->
+                    SwipeToDeleteContainer(
+                        isPossibleToDelete = viewModel.state.plan != null,
+                        item = exercise,
+                        onDelete = { onDelete(viewModel, mutableList, it) }) {
+                        ExerciseCard(exercise)
+                        Spacer(modifier = Modifier.padding(16.dp))
+                    }
+                }
+            }
+
         }
+
     }
-
-
-
 
 
 }
+
+fun onDelete(viewModel: AddToPlanViewModel, mutableList: MutableList<Exercise>, it: Exercise)
+{
+    if(viewModel.state.plan!=null) {
+        viewModel.addExercise(it)
+        mutableList-=it
+    }
+}
+
 
 @Composable
 fun ExerciseCard(exercise:Exercise)
@@ -182,11 +215,16 @@ fun GifImageFromUrl(gifUrl: String, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> SwipeToDeleteContainer(
+    isPossibleToDelete: Boolean = true,
     item: T,
     onDelete: (T) -> Unit,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
 ) {
+    if (!isPossibleToDelete) {
+        content(item)
+        return
+    }
     var isRemoved by remember {
         mutableStateOf(false)
     }

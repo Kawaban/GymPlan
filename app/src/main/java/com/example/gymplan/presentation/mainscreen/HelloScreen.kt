@@ -36,7 +36,22 @@ fun HelloScreen(
     navigator: DestinationsNavigator,
     viewModel: ExerciseViewModel = hiltViewModel(),
 ) {
-    if (viewModel.stateExercise.isLoading || viewModel.statePlan.isLoading) {
+    viewModel.getAllPlans()
+
+   /* if (viewModel.statePlan.isLoading) {
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.padding(16.dp))
+            Text("Loading...")
+        }
+        return
+    }*/
+
+    if (viewModel.stateExercise.isLoading) {
         Column(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
@@ -66,14 +81,13 @@ fun HelloScreen(
                 ) {
                     ExtendedButton(text = "Back", image = Icons.Default.Settings) {
                         viewModel.getExercises("back")
-                        viewModel.getAllPlans()
                     }
 
                     Spacer(modifier = Modifier.padding(16.dp))
 
                     ExtendedButton(text = "Chest", image = Icons.Default.Settings) {
                         viewModel.getExercises("chest")
-                        viewModel.getAllPlans()
+
                     }
                 }
 
@@ -85,14 +99,12 @@ fun HelloScreen(
                 ) {
                     ExtendedButton(text = "Lower Arms", image = Icons.Default.Settings) {
                         viewModel.getExercises("lower arms")
-                        viewModel.getAllPlans()
                     }
 
                     Spacer(modifier = Modifier.padding(16.dp))
 
                     ExtendedButton(text = "Lower Legs", image = Icons.Default.Settings) {
                         viewModel.getExercises("lower legs")
-                        viewModel.getAllPlans()
                     }
                 }
             }
@@ -100,44 +112,32 @@ fun HelloScreen(
             Spacer(modifier = Modifier.padding(50.dp))
 
             Button(onClick = {
-                viewModel.getAllPlans()
+                navigator.navigate(
+                    ShowAllPlansScreenDestination(
+                        plans = viewModel.statePlan.obj?.data!!
+                    )
+                )
             }) {
                 Text("Show all plans")
             }
 
         }
     }
-    if (viewModel.stateExercise.isReady && viewModel.statePlan.isReady) {
+    if (viewModel.stateExercise.isReady) {
         if (viewModel.stateExercise.obj != null) {
             navigator.navigate(
                 InformationScreenDestination(
                     exercises = viewModel.stateExercise.obj?.data!!,
-                    plans = viewModel.statePlan.obj?.data!!
                 )
             )
         } else {
             if (viewModel.stateExercise.error != null)
                 Toast.makeText(LocalContext.current, viewModel.stateExercise.error, Toast.LENGTH_SHORT).show()
-            else
-                Toast.makeText(LocalContext.current, viewModel.statePlan.error, Toast.LENGTH_SHORT).show()
         }
         viewModel.resetStates()
 
     }
-    if (viewModel.statePlan.isReady) {
-        if (viewModel.statePlan.obj != null) {
-            navigator.navigate(
-                ShowAllPlansScreenDestination(
-                    plans = viewModel.statePlan.obj?.data!!
-                )
-            )
-        } else {
-            Toast.makeText(LocalContext.current, viewModel.statePlan.error, Toast.LENGTH_SHORT).show()
 
-        }
-        viewModel.resetStates()
-
-    }
 
 }
 

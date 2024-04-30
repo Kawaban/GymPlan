@@ -21,6 +21,7 @@ class ExerciseViewModel @Inject constructor( private val exerciseRepository: Exe
         private set
 
     var statePlan by mutableStateOf(State<PlanList>())
+        private set
 
         fun getExercises(type: String, number: Int = 10) {
             viewModelScope.launch {

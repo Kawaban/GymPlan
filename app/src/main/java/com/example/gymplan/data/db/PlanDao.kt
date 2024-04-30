@@ -22,5 +22,8 @@ interface PlanDao {
     @Update
     suspend fun updatePlan(plan: PlanEntity)
 
+    @Query("DELETE FROM PlanEntity")
+    suspend fun deleteAllPlans()
+
 
 }

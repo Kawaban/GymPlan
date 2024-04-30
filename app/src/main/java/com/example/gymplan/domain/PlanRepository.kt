@@ -13,5 +13,6 @@ interface PlanRepository {
     suspend fun insertExercise(exercise: Exercise, planId: Int)
     suspend fun deleteExercise(exercise: Exercise, planId: Int)
     suspend fun updateExercise(exercise: Exercise, planId: Int)
+    suspend fun deleteAllPlans()
 
 }
